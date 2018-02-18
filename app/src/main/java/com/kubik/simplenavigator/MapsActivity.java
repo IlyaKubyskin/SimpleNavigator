@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -62,7 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         DirectionFinder finder = new DirectionFinder(orig, dest, this);
         finder.findDeWei();
-        List<Route> routes = finder.getRoutes();
+
 
     }
 
@@ -81,22 +82,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
         mMap.setMyLocationEnabled(true);
     }
 
     @Override
     public void onDirectionFinderStart() {
-        Toast.makeText(this, "startSearch", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Creating route.", Toast.LENGTH_SHORT).show();
+
+        mMap.clear();
     }
 
     @Override
     public void onDirectionFinderSuccess(Direction direction) {
+
+        LatLng start = new LatLng(direction.getRoutes().get(0).getLegs().get(0).getStartLocation().getLat(),
+                direction.getRoutes().get(0).getLegs().get(0).getStartLocation().getLng());
+        mMap.addMarker(new MarkerOptions().position(start)
+                .title(direction.getRoutes().get(0).getLegs().get(0).getStartAddress()));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
+
+        LatLng end = new LatLng(direction.getRoutes().get(0).getLegs().get(0).getEndLocation().getLat(),
+                direction.getRoutes().get(0).getLegs().get(0).getEndLocation().getLng());
+        mMap.addMarker(new MarkerOptions().position(end)
+                .title(direction.getRoutes().get(0).getLegs().get(0).getEndAddress()));
+
+        TextView duration = findViewById(R.id.tvDuration);
+        duration.setText(direction.getRoutes().get(0).getLegs().get(0).getDuration().getText());
+        TextView distance = findViewById(R.id.tvDistance);
+        distance.setText(direction.getRoutes().get(0).getLegs().get(0).getDistance().getText());
+
+
         PolylineOptions options = new PolylineOptions()
                 .geodesic(true)
                 .color(Color.BLUE)
