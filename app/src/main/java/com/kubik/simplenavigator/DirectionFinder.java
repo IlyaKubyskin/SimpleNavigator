@@ -1,5 +1,7 @@
 package com.kubik.simplenavigator;
 
+import android.util.Log;
+
 import com.kubik.simplenavigator.pojo.Direction;
 import com.kubik.simplenavigator.pojo.Route;
 
@@ -8,6 +10,8 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
@@ -22,6 +26,7 @@ public class DirectionFinder {
 
     private final String BASE_URL = "https://maps.googleapis.com/";
     private final String API_KEY = "AIzaSyCWQTw-4LfJo2Zt_m_DD_6LGuli0nGFGFw";
+    private final String TAG = "Log";
 
     private String origin;
     private String destination;
@@ -53,7 +58,21 @@ public class DirectionFinder {
 
         RetrofitFinder service = retrofit.create(RetrofitFinder.class);
 
-        Single<Direction> observable = service.getDirection(origin, destination, API_KEY);
+        service.getDirection(origin, destination, API_KEY)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        direction -> {
+                    setRoutes(direction.getRoutes());
+                    listener.onDirectionFinderSuccess(direction);
+                },
+                        throwable -> Log.d(TAG, "Error: " + throwable.getMessage())
+                );
+
+
+
+   /*   Single<Direction> observable = service.getDirection(origin, destination, API_KEY);
+
         DisposableSingleObserver<Direction> observer = new DisposableSingleObserver<Direction>() {
 
             @Override
@@ -68,9 +87,10 @@ public class DirectionFinder {
             }
         };
 
+
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
+                .subscribe(observer);  */
 
     }
 }

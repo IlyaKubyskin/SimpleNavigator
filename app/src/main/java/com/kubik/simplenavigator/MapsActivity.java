@@ -48,12 +48,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         origin = findViewById(R.id.etOrigin);
         destination = findViewById(R.id.etDestination);
 
-        findPath.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendRequest();
-            }
-        });
+        findPath.setOnClickListener(v -> sendRequest());
     }
 
     private void sendRequest() {
@@ -121,5 +116,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         List<LatLng> list = PolyUtil.decode(direction.getRoutes().get(0).getOverviewPolyline().getPoints());
         options.addAll(list);
         mMap.addPolyline(options);
+
     }
 }
